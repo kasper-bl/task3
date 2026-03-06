@@ -1,7 +1,7 @@
 <template>
   <div class="column">
     <h3>{{ column.title }}</h3>
-    <button v-if="canCreate" @click="showModal = true">Добавить карточку</button>
+    <button v-if="canCreate" @click="showModal = true" class="btn-add">Добавить карточку</button>
 
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content" @click.stop>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="modal-actions">
-          <button @click="closeModal">Отмена</button>
+          <button @click="closeModal" class="btn-cancel">Отмена</button>
           <button class="btn-primary" @click="createCard">Создать</button>
         </div>
       </div>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="modal-actions">
-          <button @click="closeEditModal">Отмена</button>
+          <button @click="closeEditModal" class="btn-cancel">Отмена</button>
           <button class="btn-primary" @click="saveEditCard">Сохранить</button>
         </div>
       </div>
@@ -119,7 +119,7 @@ watch(() => props.editingCard, (newVal) => {
 
 function closeModal() {
   showModal.value = false;
-  newCard.value = { title: '', description: '', deadlineLocal: '', _deadlineISO: null };
+  newCard.value = { title: '', description: '', deadlineLocal: '',deadlineISO: null };
   deadlineError.value = '';
 }
 
@@ -208,11 +208,37 @@ function onMoveToColumn({ card, targetIndex }) {
 
 <style scoped>
 .column {
-  border: 1px solid #ccc;
-  padding: 10px;
-  width: 300px;
-  background-color: #f9f9f9;
+  border: 2px solid #a5d6a7;
+  padding: 15px;
+  width: 320px;
   min-height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+}
+
+.column h3 {
+  color: #2e7d32;
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.btn-add {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 500;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: #43a047;
 }
 
 .modal-overlay {
@@ -221,7 +247,7 @@ function onMoveToColumn({ card, targetIndex }) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(76, 175, 80, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -230,30 +256,38 @@ function onMoveToColumn({ card, targetIndex }) {
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
+  padding: 25px;
+  border-radius: 10px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-width: 420px;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2e7d32;
 }
 
 .form-group input,
 .form-group textarea {
-  width: 370px;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  width: 94%;
+  padding: 10px 12px;
+  border: 2px solid #c8e6c9;
+  border-radius: 6px;
   font-size: 14px;
+  transition: border 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4caf50;
 }
 
 .form-group textarea {
@@ -261,7 +295,7 @@ function onMoveToColumn({ card, targetIndex }) {
 }
 
 .error {
-  color: #d32f2f;
+  color: #c62828;
   font-size: 12px;
   display: block;
   margin-top: 4px;
@@ -269,22 +303,28 @@ function onMoveToColumn({ card, targetIndex }) {
 
 .modal-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-top: 20px;
 }
 
 .modal-actions button {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
 }
 
-.modal-actions button:first-child {
-  background: #f1f1f1;
-  color: #333;
+.btn-cancel {
+  background: #f1f8e9;
+  color: #558b2f;
+}
+
+.btn-cancel:hover {
+  background: #dcedc8;
 }
 
 .btn-primary {
@@ -293,6 +333,6 @@ function onMoveToColumn({ card, targetIndex }) {
 }
 
 .btn-primary:hover {
-  background: #45a049;
+  background: #43a047;
 }
 </style>

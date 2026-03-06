@@ -108,5 +108,12 @@ function confirmDelete(cardId) {
 </script>
 
 <style>
-.board { display: flex; gap: 20px; padding: 10px; }
+.board {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
 </style>

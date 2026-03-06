@@ -9,26 +9,26 @@
     <p v-if="card.status"><strong>Статус:</strong> {{ card.status }}</p>
 
     <div class="actions">
-      <button v-if="canEdit" @click="editCard">✎ Ред.</button>
-      <button v-if="canDelete" @click="$emit('delete')">🗑 Удалить</button>
+      <button v-if="canEdit" @click="editCard" class="btn-edit">Редактировать</button>
+      <button v-if="canDelete" @click="$emit('delete')" class="btn-delete">Удалить</button>
 
-      <button v-if="columnIndex === 0" @click="moveTo(1)">→ В работу</button>
+      <button v-if="columnIndex === 0" @click="moveTo(1)" class="btn-move">Переместить в работу</button>
 
-      <button v-if="columnIndex === 1" @click="moveTo(2)">→ Тестирование</button>
+      <button v-if="columnIndex === 1" @click="moveTo(2)" class="btn-move">Переместить в тестирование</button>
 
       <button
         v-if="columnIndex === 2"
         class="btn-complete"
         @click="completeTask"
       >
-        → Выполнено
+        Переместить в выполненные
       </button>
       <button
         v-if="columnIndex === 2"
         class="btn-return"
         @click="returnToWork"
       >
-        ← Вернуть в работу
+        Вернуть в работу
       </button>
     </div>
   </div>
@@ -60,12 +60,11 @@ function moveTo(targetIndex) {
 }
 
 function completeTask() {
-
   emit('moveToColumn', { card: props.card, targetIndex: 3 });
 }
 
 function returnToWork() {
-  const reason = prompt('Причина возврата (обязательно');
+  const reason = prompt('Причина возврата (обязательно)');
   if (reason !== null && reason.trim()) {
     props.card.returnReason = reason;
     emit('moveToColumn', { card: props.card, targetIndex: 1 });
@@ -77,27 +76,63 @@ function returnToWork() {
 
 <style scoped>
 .card {
-  border: 1px solid #ddd;
+  border: 1px solid #c8e6c9;
   margin-bottom: 10px;
-  padding: 10px;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 15px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .actions {
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .actions button {
-  margin: 2px 4px;
-  padding: 3px 6px;
+  margin: 2px 0;
+  padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
   border: none;
   border-radius: 4px;
+  transition: background 0.2s;
+  text-align: center;
+  min-width: 120px;
+}
+
+.btn-edit {
+  background: #81c784;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #66bb6a;
+}
+
+.btn-delete {
+  background: #e57373;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #ef5350;
+}
+
+.btn-move {
+  background: #4caf50;
+}
+
+.btn-move:hover {
+  background: #9ccc65;
 }
 
 .btn-complete {
@@ -105,8 +140,16 @@ function returnToWork() {
   color: white;
 }
 
+.btn-complete:hover {
+  background: #43a047;
+}
+
 .btn-return {
-  background: #f44336;
+  background: #fbc02d;
   color: white;
+}
+
+.btn-return:hover {
+  background: #f9a825;
 }
 </style>

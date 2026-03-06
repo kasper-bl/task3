@@ -6,9 +6,11 @@
       :can-edit="true"
       :can-delete="true"
       :board-data="{ columns, nextCardId }"
+      :editing-card="editingCard"
       @move-card="handleMoveCard"
-      @edit-card="openEditModal"
+      @edit-card="startEditCard"
       @delete-card="confirmDelete"
+      @close-edit-modal="closeEditModal"
     />
     <Column
       :column="columns[1]"
@@ -16,8 +18,10 @@
       :can-edit="true"
       :can-delete="false"
       :board-data="{ columns, nextCardId }"
+      :editing-card="editingCard"
       @move-card="handleMoveCard"
-      @edit-card="openEditModal"
+      @edit-card="startEditCard"
+      @close-edit-modal="closeEditModal"
     />
     <Column
       :column="columns[2]"
@@ -25,8 +29,10 @@
       :can-edit="true"
       :can-delete="false"
       :board-data="{ columns, nextCardId }"
+      :editing-card="editingCard"
       @move-card="handleMoveCard"
-      @edit-card="openEditModal"
+      @edit-card="startEditCard"
+      @close-edit-modal="closeEditModal"
     />
     <Column
       :column="columns[3]"
@@ -50,6 +56,7 @@ const columns = ref([
 ]);
 
 let nextCardId = 1;
+const editingCard = ref(null);
 
 watchEffect(() => {
   const saved = localStorage.getItem('kanbanStateV2');
@@ -79,8 +86,12 @@ function handleMoveCard({ card, fromColIndex, toColIndex }) {
   }
 }
 
-function openEditModal(card) {
-  alert(`Редактирование: ${card.title}`);
+function startEditCard(card) {
+  editingCard.value = card;
+}
+
+function closeEditModal() {
+  editingCard.value = null;
 }
 
 function confirmDelete(cardId) {

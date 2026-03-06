@@ -20,7 +20,6 @@
             v-model="newCard.deadlineLocal"
             type="datetime-local"
             @change="onDateTimeChange"
-            required
           />
           <small v-if="deadlineError" class="error">{{ deadlineError }}</small>
         </div>
@@ -28,6 +27,34 @@
         <div class="modal-actions">
           <button @click="closeModal">Отмена</button>
           <button class="btn-primary" @click="createCard">Создать</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="editingCard && editingCard.id === cardBeingEdited?.id" class="modal-overlay" @click.self="closeEditModal">
+      <div class="modal-content" @click.stop>
+        <h4>Редактировать задачу</h4>
+        <div class="form-group">
+          <label>Название:</label>
+          <input v-model="editCardData.title" type="text" required />
+        </div>
+        <div class="form-group">
+          <label>Описание:</label>
+          <textarea v-model="editCardData.description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Дедлайн:</label>
+          <input
+            v-model="editCardData.deadlineLocal"
+            type="datetime-local"
+            @change="onEditDateTimeChange"
+            required
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button @click="closeEditModal">Отмена</button>
+          <button class="btn-primary" @click="saveEditCard">Сохранить</button>
         </div>
       </div>
     </div>
@@ -49,7 +76,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineProps, defineEmits, ref, watch } from 'vue';
 import Card from './Card.vue';
 
 const props = defineProps({
@@ -57,10 +84,11 @@ const props = defineProps({
   canCreate: { type: Boolean, default: false },
   canEdit: { type: Boolean, default: false },
   canDelete: { type: Boolean, default: false },
-  boardData: { type: Object, required: true }
+  boardData: { type: Object, required: true },
+  editingCard: { type: Object }
 });
 
-const emit = defineEmits(['moveCard', 'editCard', 'deleteCard']);
+const emit = defineEmits(['moveCard', 'editCard', 'deleteCard', 'closeEditModal']);
 
 const showModal = ref(false);
 const deadlineError = ref('');
@@ -69,6 +97,24 @@ const newCard = ref({
   description: '',
   deadlineLocal: '',
   _deadlineISO: null
+});
+
+const cardBeingEdited = ref(null);
+const editCardData = ref({
+  title: '',
+  description: '',
+  deadlineLocal: ''
+});
+
+watch(() => props.editingCard, (newVal) => {
+  if (newVal) {
+    cardBeingEdited.value = newVal;
+    editCardData.value = {
+      title: newVal.title,
+      description: newVal.description,
+      deadlineLocal: newVal.deadline ? new Date(newVal.deadline).toISOString().slice(0, 16) : ''
+    };
+  }
 });
 
 function closeModal() {
@@ -80,7 +126,7 @@ function closeModal() {
 function onDateTimeChange(e) {
   const value = e.target.value;
   if (!value) {
-    newCardISO = null;
+    newCard.value._deadlineISO = null;
     deadlineError.value = 'Дедлайн обязателен';
     return;
   }
@@ -122,6 +168,36 @@ function createCard() {
 
   props.column.cards.push(card);
   closeModal();
+}
+
+function onEditDateTimeChange(e) {
+  const value = e.target.value;
+  if (value) {
+    const date = new Date(value);
+    if (!isNaN(date.getTime())) {
+      editCardData.value._deadlineISO = date.toISOString();
+    }
+  }
+}
+
+function saveEditCard() {
+  if (!editCardData.value.title.trim()) {
+    alert('Название обязательно!');
+    return;
+  }
+
+  cardBeingEdited.value.title = editCardData.value.title;
+  cardBeingEdited.value.description = editCardData.value.description;
+  if (editCardData.value._deadlineISO) {
+    cardBeingEdited.value.deadline = editCardData.value._deadlineISO;
+  }
+  cardBeingEdited.value.lastEditedAt = new Date().toISOString();
+
+  emit('closeEditModal');
+}
+
+function closeEditModal() {
+  emit('closeEditModal');
 }
 
 function onMoveToColumn({ card, targetIndex }) {

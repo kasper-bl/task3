@@ -30,13 +30,14 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete', 'moveToColumn']);
 
-function formatDate(dateStr) { 
+function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString('ru-RU');
 }
 
 function editCard() {
   props.card.lastEditedAt = new Date().toISOString();
-  alert('Редактирование (заглушка)');
+  // Теперь редактирование открывается через модальное окно в Column.vue
+  emit('edit');
 }
 
 function moveTo(targetIndex) {
@@ -64,7 +65,9 @@ function showReturnOrComplete() {
   background: white;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-.actions { margin-top: 8px; }
+.actions {
+  margin-top: 8px;
+}
 button {
   margin: 2px 4px;
   padding: 3px 6px;

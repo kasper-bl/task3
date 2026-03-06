@@ -9,6 +9,7 @@
         :card="card"
         :can-edit="canEdit"
         :can-delete="canDelete"
+        :column-index="column.id - 1"
         @move-to-column="onMoveToColumn"
         @edit="$emit('editCard', card)"
         @delete="$emit('deleteCard', card.id)"
@@ -18,15 +19,15 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits } from 'vue';  // ✅ Вот так правильно
 import Card from './Card.vue';
 
 const props = defineProps({
   column: { type: Object, required: true },
   canCreate: { type: Boolean, default: false },
   canEdit: { type: Boolean, default: false },
-  can: { type: Boolean, default: false },
-  boardData: { type: Object, required: true } 
+  canDelete: { type: Boolean, default: false },
+  boardData: { type: Object, required: true }
 });
 
 const emit = defineEmits(['moveCard', 'editCard', 'deleteCard']);
@@ -34,16 +35,15 @@ const emit = defineEmits(['moveCard', 'editCard', 'deleteCard']);
 function addCard() {
   const now = new Date().toISOString();
   const newCard = {
-    id: props.boardData.nextCardId.value++,
+    id: props.boardData.nextCardId++,
     createdAt: now,
-    title: `Новая задача ${props.boardData.nextCardId.value - 1}`,
-    description: 'Описание задачи',
+    title: `Задача #${props.boardData.nextCardId - 1}`,
+    description: 'Описание',
     deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     lastEditedAt: now,
     status: null,
     returnReason: null
   };
-
   props.column.cards.push(newCard);
 }
 

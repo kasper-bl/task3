@@ -49,38 +49,29 @@ const columns = ref([
   { id: 4, title: 'Выполненные задачи', cards: [] }
 ]);
 
-const nextCardId = ref(1);
+let nextCardId = 1;
 
-// Загрузка из localStorage
 watchEffect(() => {
   const saved = localStorage.getItem('kanbanStateV2');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       columns.value = parsed.columns || columns.value;
-      nextCardId.value = parsed.nextCardId || 1;
-    } catch (e) {
-      console.warn('Ошибка загрузки состояния', e);
-    }
+      nextCardId = parsed.nextCardId || 1;
+    } catch {}
   }
 });
 
-// Сохранение
 watchEffect(() => {
-  localStorage.setItem('kanbanStateV2', JSON.stringify({ 
-    columns: columns.value, 
-    nextCardId: nextCardId.value 
-  }));
+  localStorage.setItem('kanbanStateV2', JSON.stringify({ columns: columns.value, nextCardId }));
 });
 
 function handleMoveCard({ card, fromColIndex, toColIndex }) {
   const fromCol = columns.value[fromColIndex];
   const toCol = columns.value[toColIndex];
-
   fromCol.cards = fromCol.cards.filter(c => c.id !== card.id);
   toCol.cards.push(card);
 
-  // Проверка дедлайна при переходе в 4-й столбец
   if (toColIndex === 3) {
     const deadline = new Date(card.deadline);
     const now = new Date();
@@ -93,12 +84,11 @@ function openEditModal(card) {
 }
 
 function confirmDelete(cardId) {
-  if (confirm('Удалить карточку?')) {
-    // Ищем карточку во всех столбцах
+  if (confirm('Удалить?')) {
     for (let i = 0; i < columns.value.length; i++) {
-      const index = columns.value[i].cards.findIndex(c => c.id === cardId);
-      if (index !== -1) {
-        columns.value[i].cards.splice(index, 1);
+      const idx = columns.value[i].cards.findIndex(c => c.id === cardId);
+      if (idx !== -1) {
+        columns.value[i].cards.splice(idx, 1);
         break;
       }
     }
@@ -107,9 +97,5 @@ function confirmDelete(cardId) {
 </script>
 
 <style>
-.board {
-  display: flex;
-  gap: 20px;
-  padding: 10px;
-}
+.board { display: flex; gap: 20px; padding: 10px; }
 </style>

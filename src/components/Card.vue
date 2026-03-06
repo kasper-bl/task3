@@ -11,9 +11,25 @@
     <div class="actions">
       <button v-if="canEdit" @click="editCard">✎ Ред.</button>
       <button v-if="canDelete" @click="$emit('delete')">🗑 Удалить</button>
+
       <button v-if="columnIndex === 0" @click="moveTo(1)">→ В работу</button>
+
       <button v-if="columnIndex === 1" @click="moveTo(2)">→ Тестирование</button>
-      <button v-if="columnIndex === 2" @click="showReturnOrComplete">→ Выполнено</button>
+
+      <button
+        v-if="columnIndex === 2"
+        class="btn-complete"
+        @click="completeTask"
+      >
+        → Выполнено
+      </button>
+      <button
+        v-if="columnIndex === 2"
+        class="btn-return"
+        @click="returnToWork"
+      >
+        ← Вернуть в работу
+      </button>
     </div>
   </div>
 </template>
@@ -36,23 +52,25 @@ function formatDate(dateStr) {
 
 function editCard() {
   props.card.lastEditedAt = new Date().toISOString();
-  // Теперь редактирование открывается через модальное окно в Column.vue
-  emit('edit');
+  emit('edit'); 
 }
 
 function moveTo(targetIndex) {
   emit('moveToColumn', { card: props.card, targetIndex });
 }
 
-function showReturnOrComplete() {
-  const reason = prompt('Причина возврата (оставьте пустым для завершения):');
-  if (reason !== null) {
-    if (reason.trim()) {
-      props.card.returnReason = reason;
-      emit('moveToColumn', { card: props.card, targetIndex: 1 });
-    } else {
-      emit('moveToColumn', { card: props.card, targetIndex: 3 });
-    }
+function completeTask() {
+
+  emit('moveToColumn', { card: props.card, targetIndex: 3 });
+}
+
+function returnToWork() {
+  const reason = prompt('Причина возврата (обязательно');
+  if (reason !== null && reason.trim()) {
+    props.card.returnReason = reason;
+    emit('moveToColumn', { card: props.card, targetIndex: 1 });
+  } else if (reason !== null) {
+    alert('Укажите причину возврата.');
   }
 }
 </script>
@@ -65,13 +83,30 @@ function showReturnOrComplete() {
   background: white;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
 .actions {
   margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-button {
+
+.actions button {
   margin: 2px 4px;
   padding: 3px 6px;
   font-size: 12px;
   cursor: pointer;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn-complete {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-return {
+  background: #f44336;
+  color: white;
 }
 </style>

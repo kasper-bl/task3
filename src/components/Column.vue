@@ -3,7 +3,6 @@
     <h3>{{ column.title }}</h3>
     <button v-if="canCreate" @click="showModal = true">Добавить карточку</button>
 
-    <!-- Модальное окно -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content" @click.stop>
         <h4>Создать новую задачу</h4>
@@ -17,7 +16,13 @@
         </div>
         <div class="form-group">
           <label>Дедлайн:</label>
-          <input v-model="newCard.deadline" type="date" required />
+          <input
+            v-model="newCard.deadlineLocal"
+            type="datetime-local"
+            @change="onDateTimeChange"
+            required
+          />
+          <small v-if="deadlineError" class="error">{{ deadlineError }}</small>
         </div>
 
         <div class="modal-actions">
@@ -57,38 +62,49 @@ const props = defineProps({
 
 const emit = defineEmits(['moveCard', 'editCard', 'deleteCard']);
 
-// Состояние модалки
 const showModal = ref(false);
-
-// Данные новой карточки
+const deadlineError = ref('');
 const newCard = ref({
   title: '',
   description: '',
-  deadline: '' // будет заполнено в формате YYYY-MM-DD
+  deadlineLocal: '',
+  _deadlineISO: null
 });
 
 function closeModal() {
   showModal.value = false;
-  // Сбросим форму
-  newCard.value = { title: '', description: '', deadline: '' };
+  newCard.value = { title: '', description: '', deadlineLocal: '', _deadlineISO: null };
+  deadlineError.value = '';
+}
+
+function onDateTimeChange(e) {
+  const value = e.target.value;
+  if (!value) {
+    newCardISO = null;
+    deadlineError.value = 'Дедлайн обязателен';
+    return;
+  }
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) {
+    newCard.value._deadlineISO = null;
+    deadlineError.value = 'Неверная дата или время';
+    return;
+  }
+
+  newCard.value._deadlineISO = date.toISOString();
+  deadlineError.value = '';
 }
 
 function createCard() {
-  const { title, description, deadline } = newCard.value;
+  const { title, description, _deadlineISO } = newCard.value;
 
   if (!title.trim()) {
     alert('Название обязательно!');
     return;
   }
-  if (!deadline) {
-    alert('Укажите дедлайн!');
-    return;
-  }
-
-  // Преобразуем дату в ISO (для localStorage и сравнения)
-  const deadlineDate = new Date(deadline);
-  if (isNaN(deadlineDate.getTime())) {
-    alert('Неверный формат даты. Выберите дату из календаря.');
+  if (!_deadlineISO) {
+    alert('Выберите дедлайн');
     return;
   }
 
@@ -98,7 +114,7 @@ function createCard() {
     createdAt: now,
     title,
     description,
-    deadline: deadlineDate.toISOString(),
+    deadline: _deadlineISO,
     lastEditedAt: now,
     status: null,
     returnReason: null
@@ -123,7 +139,6 @@ function onMoveToColumn({ card, targetIndex }) {
   min-height: 500px;
 }
 
-/* Модальное окно */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -167,6 +182,13 @@ function onMoveToColumn({ card, targetIndex }) {
 
 .form-group textarea {
   resize: vertical;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 12px;
+  display: block;
+  margin-top: 4px;
 }
 
 .modal-actions {

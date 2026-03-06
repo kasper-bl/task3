@@ -12,7 +12,6 @@
       <button v-if="canEdit" @click="editCard">Редактировать</button>
       <button v-if="canDelete" @click="$emit('delete')">Удалить</button>
 
-      <!-- Перемещение -->
       <button v-if="columnIndex === 0" @click="moveTo(1)">→ В работу</button>
       <button v-if="columnIndex === 1" @click="moveTo(2)">→ Тестирование</button>
       <button v-if="columnIndex === 2" @click="showReturnOrComplete">→ Выполненные</button>
@@ -21,13 +20,16 @@
 </template>
 
 <script setup>
-import { inject } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
-const props = defineProps(['card', 'canEdit', 'canDelete']);
-defineEmits(['edit', 'delete', 'moveToColumn']);
+const props = defineProps({
+  card: { type: Object, required: true },
+  canEdit: { type: Boolean, default: false },
+  canDelete: { type: Boolean, default: false },
+  columnIndex: { type: Number, required: true }
+});
 
-// Для определения текущего столбца
-const columnIndex = inject('columnIndex');
+const emit = defineEmits(['edit', 'delete', 'moveToColumn']);
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString();
@@ -35,12 +37,11 @@ function formatDate(dateStr) {
 
 function editCard() {
   props.card.lastEditedAt = new Date().toISOString();
-  // Здесь можно открыть модальное окно, пока просто alert
-  alert('Открыто окно редактирования');
+  alert('Редактирование (заглушка)');
 }
 
 function moveTo(targetIndex) {
-  props.$emit('moveToColumn', { card: props.card, targetIndex });
+  emit('moveToColumn', { card: props.card, targetIndex });
 }
 
 function showReturnOrComplete() {
@@ -48,9 +49,9 @@ function showReturnOrComplete() {
   if (reason !== null) {
     if (reason.trim()) {
       props.card.returnReason = reason;
-      props.$emit('moveToColumn', { card: props.card, targetIndex: 1 }); // вернуть во 2-й
+      emit('moveToColumn', { card: props.card, targetIndex: 1 }); // во 2-й
     } else {
-      props.$emit('moveToColumn', { card: props.card, targetIndex: 3 }); // в 4-й
+      emit('moveToColumn', { card: props.card, targetIndex: 3 }); // в 4-й
     }
   }
 }
@@ -70,5 +71,7 @@ function showReturnOrComplete() {
 button {
   margin-right: 5px;
   margin-bottom: 5px;
+  padding: 4px 8px;
+  font-size: 12px;
 }
 </style>

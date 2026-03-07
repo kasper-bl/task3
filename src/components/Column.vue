@@ -217,7 +217,7 @@ function onMoveToColumn({ card, targetIndex }) {
 }
 
 .column h3 {
-  color: #2e7d32;
+  color: #000000;
   margin-top: 0;
   margin-bottom: 15px;
   text-align: center;
@@ -247,11 +247,10 @@ function onMoveToColumn({ card, targetIndex }) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(76, 175, 80, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10
 }
 
 .modal-content {
@@ -268,10 +267,9 @@ function onMoveToColumn({ card, targetIndex }) {
 }
 
 .form-group label {
-  display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #2e7d32;
+  color: #000000;
 }
 
 .form-group input,

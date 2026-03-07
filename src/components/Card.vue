@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" :class="deadlineClass">
     <h4>{{ card.title }}</h4>
     <p><strong>Создана:</strong> {{ formatDate(card.createdAt) }}</p>
     <p><strong>Дедлайн:</strong> {{ formatDate(card.deadline) }}</p>
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({
   card: { type: Object, required: true },
@@ -45,6 +45,22 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['edit', 'delete', 'moveToColumn']);
+
+const deadlineClass = computed(() => {
+  if (!props.card.deadline) return '';
+
+  const deadline = new Date(props.card.deadline);
+  const now = new Date();
+  const diffMs = deadline - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+
+  if (diffHours <= 24 && diffHours > 0) {
+    return 'blink-red';
+  } else if (diffHours <= 72 && diffHours > 0) {
+    return 'blink-orange';
+  }
+  return '';
+});
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString('ru-RU');
@@ -82,12 +98,30 @@ function returnToWork() {
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
   border-radius: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: box-shadow 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.blink-red {
+  animation: pulseRed 2s ease-in-out infinite;
+}
+
+.blink-orange {
+  animation: pulseOrange 2s ease-in-out infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 5px 2px transparent; }
+  50% { box-shadow: 0 0 12px 4px #ff0000; }
+}
+
+@keyframes pulseOrange {
+  0%, 100% { box-shadow: 0 0 5px 2px transparent; }
+  50% { box-shadow: 0 0 10px 3px #ff9900; }
 }
 
 .actions {
